@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" allow="*microphone *">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Recognizer v1.1 by Shaman</title>
+
+    <script src="https://kit.fontawesome.com/c947efe878.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <main>
+        <h1>Start recording!</h1>
+        <button onclick="SpRec()" id="start1"></button>
+        <button onclick="localStorage['SpeechRecognizerTranscript'] = ''"><i class="fas fa-history"></i> | Clear history</button>
+
+        <textarea></textarea>
+
+        <button onclick="SpRec()"  id="start2"></button>
+        <button onclick="localStorage['SpeechRecognizerTranscript'] = ''"><i class="fas fa-history"></i> | Clear history</button>
+
+    </main>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        body {
+            background: #050505;
+            margin: 15px;
+        }
+
+        main {
+            background: #101010;
+            padding: 20px;
+        }
+
+        main,
+        textarea,
+        button {
+            border-radius: 15px;
+        }
+
+        textarea,
+        button {
+            background: #151515;
+            border: none;
+            font-size: 110%;
+            padding: 15px;
+            margin: 5px;
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            resize: none;
+            height:1000px;
+        }
+
+        button {
+            font-weight: lighter;
+            padding: 15px;
+            font-size: 150%;
+        }
+
+        button:hover {
+            background: #202020;
+        }
+
+        button:active {
+            background: #252525;
+        }
+
+        h1 {
+            margin: 5px;
+        }
+
+        @keyframes rec {
+            0%{
+                opacity:0;
+            }
+            25%{
+                opacity:1;
+            }
+            50%{
+                opacity:0;
+            }
+            75%{
+                opacity:1;
+            }
+        }
+
+        .fa-circle{
+            animation: rec 2s linear 0s infinite;
+            color:red;
+        }
+
+        @keyframes ERR{
+		    0%		{ background: red; color:white;}
+		    100%	{ background: white; color:black;}
+	    }
+
+        /* *{
+            animation: ERR 0.75s infinite;
+        } */
+    </style>
+    <script>
+        if (localStorage["SpeechRecognizerTranscript"]) {
+            document.querySelector('textarea').value = localStorage["SpeechRecognizerTranscript"]
+        }
+
+        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+        let SpeechRecognitionStarted = false
+
+        let rec = new SpeechRecognition();
+        rec.continuous = true;
+        rec.interimResults = true;
+
+        rec.onstart = e => {
+            // document.body.style.background = "springgreen"
+        }
+        rec.onresult = e => {
+            let dataRaw = e.results[e.results.length - 1]
+            let data = e.results[e.results.length - 1][0]
+            let conf = data.confidence;
+            if (dataRaw.isFinal) {
+                document.querySelector('textarea').value += data.transcript + "\n"
+                localStorage["SpeechRecognizerTranscript"] = document.querySelector('textarea').value
+            }
+            document.querySelector('h1').innerText = data.transcript
+        }
+        rec.onspeechend = function () {
+
+        }
+        rec.onerror = function (e) {
+            for(let i in e){
+              console.log(i+":"+e[i].toString())
+            }
+            document.querySelector('h1').innerHTML = "<h1>Error occured!</h1>"
+            for (let i of document.querySelectorAll('*')) {
+                i.style.animation = "ERR 0.75s infinite"
+            }
+        }
+
+        function SpEnd() {
+            rec.stop();
+            document.querySelector('#start1').innerHTML = '<i class="fas fa-square"></i> | Record'
+            document.querySelector('#start2').innerHTML = '<i class="fas fa-square"></i> | Record'
+            document.querySelector('h1').innerText = "Recording stopped..."
+        }
+
+        function SpRec() {
+            if (SpeechRecognitionStarted) {
+                rec.start()
+                document.querySelector('#start1').innerHTML = '<i class="fas fa-circle"></i> | Stop recording'
+                document.querySelector('#start2').innerHTML = '<i class="fas fa-circle"></i> | Stop recording'
+            }
+            else {
+                SpEnd()
+            }
+            SpeechRecognitionStarted = !SpeechRecognitionStarted
+        }
+        SpRec()
+    </script>
+</body>
+
+</html>
