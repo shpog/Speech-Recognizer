@@ -1,2 +1,2 @@
 # Speech-Recognizer
-Speech recognizing app built using webkitSpeechRecognition.
+Speech Recognizer in the web browser.
